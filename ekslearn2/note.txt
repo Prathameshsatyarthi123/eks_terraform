@@ -1,0 +1,111 @@
+1) Deploy this code 
+2) For application load baalncer .
+FOLLOW : https://docs.aws.amazon.com/eks/latest/userguide/lbc-helm.html
+3) Create ingress , deployment and svc.
+
+/*
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: photoapp
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: photoapp
+  template:
+    metadata:
+      labels:
+        app: photoapp
+    spec:
+      containers:
+      - name: photoapp
+        image: ravindrasingh6969/nodeapp:latest
+        ports:
+        - containerPort: 8080
+
+  apiVersion: v1
+kind: Service
+metadata:
+  name: photoapp
+spec:
+  selector:
+    app: photoapp  # Match the label from the Deployment
+  ports:
+    - protocol: TCP
+      port: 80         # Expose port 80 for HTTP traffic
+      targetPort: 8080  # The container port your Node.js app is listening on
+  type: ClusterIP      # Expose internally to the cluster (Ingress will route traffic)
+
+
+
+/* ingress.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: photoapp
+spec:
+  selector:
+    app: photoapp  # Match the label from the Deployment
+  ports:
+    - protocol: TCP
+      port: 80         # Expose port 80 for HTTP traffic
+      targetPort: 8080  # The container port your Node.js app is listening on
+  type: ClusterIP      # Expose internally to the cluster (Ingress will route traffic)
+[ec2-user@ip-172-31-40-63 ~]$ cat ingress.yaml 
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: photoapp
+  annotations:
+    # AWS-specific annotations for the ALB
+    alb.ingress.kubernetes.io/scheme: "internet-facing"         # Set to "internet-facing" for public ALB
+    alb.ingress.kubernetes.io/target-type: "ip"                  # Set to "ip" to target pods directly
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'     # Listen on HTTP port 80 (no SSL)
+spec:
+  ingressClassName: alb                                            # Ingress class for AWS Load Balancer
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: photoapp
+                port:
+                  number: 80
+
+
+
+
+*/
+
+kubectl apply -f ingress.yaml
+   83  kubectl get ingress photoapp
+   84  kubectl logs -n kube-system deployment/aws-load-balancer-controller
+   85  aws ec2 create-tags --resources subnet-037e2a65c983a6dc8 subnet-0e928cb1fc5e022b1 --tags Key=kubernetes.io/role/elb,Value=1
+   86  kubectl apply -f ingress.yaml
+   87  kubectl logs -n kube-system deployment/aws-load-balancer-controller
+   88  kubectl get ingress photoapp
+   89  kubectl logs -n kube-system deployment/aws-load-balancer-controller
+   90  kubectl delete -f ingress.yaml 
+   91  kubectl apply -f ingress.yaml
+   92  kubectl get ingress photoapp
+   93  kubectl logs -n kube-system deployment/aws-load-balancer-controller
+   94  ls
+   95  nano ingress.yaml 
+   96  kubectl delete -f ingress.yaml 
+   97  kubectl apply -f ingress.yaml
+   98  kubectl logs -n kube-system deployment/aws-load-balancer-controller
+   99  nano ingress.yaml 
+  100  kubectl delete -f ingress.yaml 
+  101  kubectl apply -f ingress.yaml
+  102  kubectl logs -n kube-system deployment/aws-load-balancer-controller
+  103  kubectl get ingress photoapp
+  104  kubectl logs -n kube-system deployment/aws-load-balancer-controller
+  105  kubectl delete -f ingress.yaml 
+  106  kubectl apply -f ingress.yaml
+  107  kubectl logs -n kube-system deployment/aws-load-balancer-controller
+  108  kubectl get ingress
+  109  nano ingress.yaml 
+  110  kubectl apply -f ingress.yaml
